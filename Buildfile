@@ -14,8 +14,9 @@ repositories.release_to[:url] ||= "sftp://www.intalio.org/var/www-org/public/mav
 repositories.release_to[:permissions] ||= 0664
 
 ORBEON_CORE = [
-  group("orbeon", "orbeon-xforms-filter", "orbeon-resources-public", "orbeon-resources-private", :under=>"orbeon", :version=>"3.7.0beta1.200902241728")
+  group("orbeon", "orbeon-xforms-filter", "orbeon-resources-public", "orbeon-resources-private", :under=>"orbeon", :version=>"3.7.0beta1.200811030320")
 ]
+#3.7.0beta1.200902241728
 
 APACHE_COMMONS = {
   :beanutils => "commons-beanutils:commons-beanutils:jar:1.7.0",
