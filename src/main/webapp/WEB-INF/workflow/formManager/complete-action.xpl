@@ -90,6 +90,7 @@
 						<tms:attachmentMetadata>
 							<tms:mimeType><xsl:value-of select="doc('input:widget')/*/@mediatype"/></tms:mimeType>
 							<tms:fileName><xsl:value-of select="doc('input:widget')/*/@filename"/></tms:fileName>
+							<tms:title><xsl:value-of select="doc('input:widget')/*/@filename"/></tms:title>
 							<tms:widget><xsl:value-of select="doc('input:widget')/*/@widget"/></tms:widget>
 						</tms:attachmentMetadata>
 						<tms:payloadUrl><xsl:value-of select="doc('input:tasResponse')/tas:url"/></tms:payloadUrl>

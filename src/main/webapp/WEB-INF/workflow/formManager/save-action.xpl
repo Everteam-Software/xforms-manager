@@ -20,21 +20,152 @@
 -->
 <p:config xmlns:p="http://www.orbeon.com/oxf/pipeline"
 	xmlns:oxf="http://www.orbeon.com/oxf/processors"
-        xmlns:xforms="http://www.w3.org/2002/xforms"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml"
-        xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-        xmlns:delegation="http://orbeon.org/oxf/xml/delegation"
-        xmlns:tms="http://www.intalio.com/BPMS/Workflow/TaskManagementServices-20051109/"
-        xmlns:ev="http://www.w3.org/2001/xml-events">
+	xmlns:xforms="http://www.w3.org/2002/xforms"
+	xmlns:xhtml="http://www.w3.org/1999/xhtml"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:delegation="http://orbeon.org/oxf/xml/delegation"
+	xmlns:b4p="http://www.intalio.com/bpms/workflow/ib4p_20051115"
+	xmlns:tas="http://www.intalio.com/BPMS/Workflow/TaskAttachmentService/"
+	xmlns:tms="http://www.intalio.com/BPMS/Workflow/TaskManagementServices-20051109/"
+	xmlns:ev="http://www.w3.org/2001/xml-events">
 
 
 	<!-- name must be instance because it's called by the page-flow  -->
 	<p:param name="instance" type="input"/>
 	<!-- name must be data because it's called by the page-flow  -->
 	<p:param name="data" type="output"/>
+	
+	<!-- Start Upload -->
+	<p:for-each href="#instance" select="//*[string-length(normalize-space(@upload-id)) > 0  and string-length(normalize-space(text())) > 0]"
+		root="uploads" id="uploads-out">
 
+		<!-- Prepare the SOAP body message -->
+		<p:processor name="oxf:xslt">
+			<p:input name="data" href="#instance"/>
+			<p:input name="widget" href="current()"/>
+			<p:input name="config">
+				<delegation:execute service="tas" operation="addRequest" xsl:version="2.0">
+					<tas:authCredentials>
+						<tas:participantToken>
+							<xsl:value-of select="/*:output/@participantToken"/>
+						</tas:participantToken>
+						<tas:authorizedUsers>
+							<tas:user>
+								<xsl:value-of select="/*:output/@user"/>
+							</tas:user>
+						</tas:authorizedUsers>
+						<tas:authorizedRoles/>
+					</tas:authCredentials>
+					<tas:attachmentMetadata>
+						<tas:mimeType><xsl:value-of select="doc('input:widget')/*/@mediatype"/></tas:mimeType>
+						<tas:filename><xsl:value-of select="doc('input:widget')/*/@filename"/></tas:filename>
+					</tas:attachmentMetadata>
+					<tas:localFileURL>
+						<xsl:value-of select="doc('input:widget')/*/text()"/>
+					</tas:localFileURL>
+				</delegation:execute>
+			</p:input>
+			<p:output name="data" id="addRequest"/>
+		</p:processor>
+
+		<!-- Call TAS.add -->
+		<p:processor name="oxf:delegation">
+			<p:input name="call" href="#addRequest"/>
+			<p:input name="interface" href="oxf:/config/services.xml"/>
+			<p:output name="data" id="addResponse"/>
+		</p:processor>
+
+		<!-- Call TMS WS for TMS.add operation to add new attachment -->
+		<!-- Prepare the SOAP message body -->
+		<p:processor name="oxf:xslt">
+			<p:input name="data" href="#instance"/>
+			<p:input name="widget" href="current()"/>
+			<p:input name="tasResponse" href="#addResponse"/>
+			<p:input name="config">
+				<delegation:execute service="tms" operation="addAttachmentRequest" xsl:version="2.0">
+					<tms:taskId>
+						<xsl:value-of select="/*/@taskId"/>
+					</tms:taskId>
+					<tms:attachment>
+						<tms:attachmentMetadata>
+							<tms:mimeType><xsl:value-of select="doc('input:widget')/*/@mediatype"/></tms:mimeType>
+							<tms:fileName><xsl:value-of select="doc('input:widget')/*/@filename"/></tms:fileName>
+							<tms:title><xsl:value-of select="doc('input:widget')/*/@filename"/></tms:title>
+							<tms:widget><xsl:value-of select="doc('input:widget')/*/@widget"/></tms:widget>
+						</tms:attachmentMetadata>
+						<tms:payloadUrl><xsl:value-of select="doc('input:tasResponse')/tas:url"/></tms:payloadUrl>
+					</tms:attachment>
+					<tms:participantToken>
+						<xsl:value-of select="/*/@participantToken"/>
+					</tms:participantToken>
+				</delegation:execute>
+			</p:input>
+			<p:output name="data" id="addAttachmentTMS"/>
+		</p:processor>
+
+		<p:processor name="oxf:delegation">
+			<p:input name="interface" href="oxf:/config/services.xml"/>
+			<p:input name="call" href="#addAttachmentTMS"/>
+			<p:output name="data" id="dummy"/>
+		</p:processor>
+
+		<!-- Substitute new URL -->
+		<p:processor name="oxf:xslt">
+			<p:input name="data" href="#instance"/>
+			<p:input name="url" href="#addResponse"/>
+			<p:input name="widget" href="current()"/>
+			<p:input name="dummy" href="#dummy"/>
+			<p:input name="config">
+				<xsl:stylesheet version="2.0">
+					<xsl:variable name="url" select="doc('input:url')"/>
+					<xsl:variable name="widget" select="doc('input:widget')"/>
+					<xsl:variable name="dummy" select="doc('input:dummy')"/>
+					<xsl:template match="/">
+						<xsl:if test="count($dummy) > 0"/>
+						<xsl:call-template name="replace-url">
+							<xsl:with-param name="widget" select="//*[@upload-id = $widget/*/@upload-id]"/>
+						</xsl:call-template>
+					</xsl:template>
+
+					<xsl:template name="replace-url">
+						<xsl:param name="widget"/>
+						<xsl:element name="{name($widget)}" namespace="{namespace-uri($widget)}">
+							<xsl:copy-of select="$widget/@*"/>
+							<xsl:value-of select="$url/tas:url"/>
+						</xsl:element>
+					</xsl:template>
+				</xsl:stylesheet>
+			</p:input>
+			<p:output name="data" ref="uploads-out"/>
+		</p:processor>
+
+	</p:for-each>
+
+	<!-- Replace upload widgets with updated URLs-->
 	<p:processor name="oxf:xslt">
 		<p:input name="data" href="#instance"/>
+		<p:input name="uploads" href="#uploads-out"/>
+		<p:input name="config">
+			<xsl:stylesheet version="2.0">
+				<xsl:variable name="uploads" select="doc('input:uploads')"/>
+				<xsl:template match="//*[string-length(normalize-space(@upload-id)) > 0  and string-length(normalize-space(text())) > 0]">
+					<xsl:variable name="upload-id" select="@upload-id"/>
+					<xsl:copy-of select="$uploads//*[@upload-id = $upload-id]"/>
+				</xsl:template>
+				<!-- Identity copy -->
+				<xsl:template match="*|@*|text()">
+					<xsl:copy>
+						<xsl:apply-templates select="*|@*|text()"/>
+					</xsl:copy>
+				</xsl:template>
+			</xsl:stylesheet>
+		</p:input>
+		<p:output name="data" id="instance2"/>
+	</p:processor>
+	<!-- End Upload -->
+
+	<p:processor name="oxf:xslt">
+		<p:input name="data" href="#instance2"/>
 		<p:input name="config">
             <xsl:stylesheet version="2.0">
                 <xsl:import href="oxf:/oxf/xslt/utils/copy.xsl"/>
