@@ -73,7 +73,12 @@
                             <xsl:value-of select="tms:attachmentMetadata/tms:description"/>
                         </hint>
                         <create-date>
-                            <xsl:value-of select="tms:attachmentMetadata/tms:creationDate"/>
+                            <xsl:variable name="mydate" select="xs:dateTime(tms:attachmentMetadata/tms:creationDate)"/>
+                            <!--
+                                see:
+                                http://www.w3.org/TR/xslt20/#function-format-dateTime
+                            -->
+                            <xsl:value-of select="format-dateTime($mydate, '[Y]/[M]/[D] [h]:[m01]:[s01] [Pn]')"/>
                         </create-date>
                         <url>
                             <xsl:value-of select="tms:payloadUrl"/>

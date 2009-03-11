@@ -88,7 +88,7 @@
                                 <xsl:apply-templates select="@* | *"/>
 
                                 <!-- Declares the Init Task action -->
-                                <xforms:submission id="initSubmission" ref="instance('taskoutput')" validate="false"
+                                <xforms:submission id="initSubmission" ref="instance('taskoutput')" validate="true"
                                                    action="/formManager/init" method="post" replace="all">
 
                                     <xforms:toggle ev:event="xforms-submit" case="submit-wait"/>
@@ -126,7 +126,7 @@
                                 <xsl:attribute name="user">
                                     <xsl:value-of select="doc('input:xpl-input')/task/user"/>
                                 </xsl:attribute>
-                                <xsl:attribute name="url">
+                                <xsl:attribute name="formUrl">
                                     <xsl:value-of select="doc('input:xpl-input')/task/url"/>
                                 </xsl:attribute>
                                 <xsl:apply-templates select="*"/>

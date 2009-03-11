@@ -148,6 +148,8 @@
                                         <xsl:attribute name="user">
                                             <xsl:value-of select="doc('input:xpl-input')/task/user"/>
                                         </xsl:attribute>
+                                        
+
 
 						                <xsl:for-each select="doc('input:getTaskResponse')//tms:attachments/tms:attachment">
 						                    <attachment>
@@ -161,7 +163,12 @@
 						                            <xsl:value-of select="tms:attachmentMetadata/tms:description"/>
 						                        </hint>
 						                        <create-date>
-						                            <xsl:value-of select="tms:attachmentMetadata/tms:creationDate"/>
+						                            <xsl:variable name="mydate" select="xs:dateTime(tms:attachmentMetadata/tms:creationDate)"/>
+						                            <!--
+						                                see:
+						                                http://www.w3.org/TR/xslt20/#function-format-dateTime
+						                            -->
+                                                    <xsl:value-of select="format-dateTime($mydate, '[Y]/[M]/[D] [h]:[m01]:[s01] [Pn]')"/>
 						                        </create-date>
 						                        <url>
 						                            <xsl:value-of select="tms:payloadUrl"/>
@@ -411,7 +418,7 @@
                                                         <xhtml:th/>
                                                         <xhtml:th>Title</xhtml:th>
                                                         <xhtml:th>Mime Type</xhtml:th>
-                                                        <xhtml:th>Creation Date</xhtml:th>
+                                                        <xhtml:th>Created</xhtml:th>
                                                     </xhtml:tr>
                                                     <xforms:repeat nodeset="attachment" id="attachmentsTable">
                                                         <xhtml:tr>
@@ -434,6 +441,7 @@
                                                             <xhtml:td>
                                                                 <xforms:trigger appearance="xxforms:link">
                                                                     <xforms:label ref="title"/>
+                                                                    <xforms:hint ref="hint"/>
                                                                     <xforms:load
                                                                             ref="instance('taskAttachments')/attachment[index('attachmentsTable')]/url"
                                                                             ev:event="DOMActivate"
@@ -452,6 +460,7 @@
                                                             <xhtml:td>
                                                                 <xforms:trigger appearance="xxforms:link">
                                                                     <xforms:label ref="create-date"/>
+                                                                    <xforms:hint ref="hint"/>
                                                                     <xforms:load
                                                                             ref="instance('taskAttachments')/attachment[index('attachmentsTable')]/url"
                                                                             ev:event="DOMActivate"
