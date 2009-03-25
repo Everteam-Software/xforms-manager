@@ -11,6 +11,18 @@
 */
 
 /*
+Probably the CSS we need the most are the two below.
+Display for validation.
+
+*/
+span.xforms-input input{
+	background-color:white;
+}
+span.xforms-required-empty input{
+	background-color:#FF3333;
+}
+
+/*
   FIXME:
   The definition below is NOT for intalio css, but it's fixing a display bug of the current orbeon.
   Already asked on the mailing list.
@@ -44,6 +56,7 @@ div.intalio {
     height: 430px;
     width: 100%;
     overflow: auto;
+    background-color:blue;
 }
 
 div#intalio-bpms-form {
@@ -193,7 +206,6 @@ span.button button, span.button input{
 	padding-top:0px;
 	line-height:2.5;/*Opera need this*/
 }
-
 
 /** optional **/
 /*
