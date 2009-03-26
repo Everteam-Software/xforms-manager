@@ -16,11 +16,20 @@ Display for validation.
 
 */
 span.xforms-input input{
+	margin-left: 1em;
 	background-color:white;
 }
 span.xforms-required-empty input{
-	background-color:#FF3333;
+	background-color:#6699FF;
 }
+span.xforms-required-empty select{
+	background-color:#6699FF;
+}
+span.xforms-required-empty textarea{
+	background-color:#6699FF;
+}
+
+
 
 /*
   FIXME:
