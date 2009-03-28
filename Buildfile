@@ -1,7 +1,7 @@
 require "buildr"
 
 # Keep this structure to allow the build system to update version numbers.
-VERSION_NUMBER = "6.0.0.40"
+VERSION_NUMBER = "6.0.0.41-SNAPSHOT"
 
 repositories.remote = [ 
   "http://www.intalio.org/public/maven2", 
