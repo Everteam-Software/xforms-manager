@@ -205,6 +205,7 @@
 
                                 <!-- Adds the controls for Task Actions and handle the logic -->
                                 <xsl:template xmlns:xhtml="http://www.w3.org/1999/xhtml" match="xhtml:body">
+                                    <xsl:variable name="metadata" select="doc('input:getTaskResponse')/tms:task/tms:metadata"/>
                                     <xsl:copy>
                                         <!-- display the proper page -->
                                         <xforms:switch>
@@ -212,11 +213,14 @@
                                             <xforms:case id="viewTask">
                                                 <xsl:apply-templates select="@* | *"/>
                                                 <xhtml:div>
-												<span class="button" title="Dismiss Notification">
-                                                    <xforms:submit submission="dismissSubmission">
+                                                  <xsl:if test="$metadata/tms:taskState != 'COMPLETED' and
+                                                    (count($metadata/tms:dismissAction/tms:authorized) = 0 or $metadata/tms:dismissAction/tms:authorized/text() != 'false')">
+                                                    <span class="button" title="Dismiss Notification">
+                                                      <xforms:submit submission="dismissSubmission">
                                                         <xforms:label>Dismiss</xforms:label>
-                                                    </xforms:submit>
-												</span>
+                                                      </xforms:submit>
+                                                    </span>
+                                                  </xsl:if>
                                                 </xhtml:div>
                                             </xforms:case>
                                             <!-- Display while submission - wait page -->
