@@ -22,15 +22,24 @@
     <property as="xs:boolean" name="oxf.sax.inspection"                              value="false"/>
     <property as="xs:boolean" name="oxf.resources.versioned"                         value="false"/>
     <property as="xs:string"  name="oxf.resources.version-number"                    value="3.1415"/>
+
+    <property as="xs:anyURI"  name="oxf.url-rewriting.service.base-uri"              value=""/>
+    <property as="xs:string"  name="oxf.url-rewriting.strategy.servlet"              value="servlet"/>
+    <!-- TODO: support for base context for servlet rewriting strategy -->
+    <!--<property as="xs:string"  name="oxf.url-rewriting.portlet.context"               value=""/>-->
+    <property as="xs:string"  name="oxf.url-rewriting.portlet2.context"              value=""/>
+
     <!--<property as="xs:string"  name="oxf.http.proxy.host"                             value="localhost"/>-->
     <!--<property as="xs:integer" name="oxf.http.proxy.port"                             value="8090"/>-->
 
+    <!-- Epilogue configuration -->
     <property as="xs:anyURI"  name="oxf.epilogue.theme"                              value="oxf:/config/theme-plain.xsl"/>
     <property as="xs:boolean" name="oxf.epilogue.use-theme"                          value="true"/>
+    <property as="xs:anyURI"  name="oxf.epilogue.theme.error"                        value="oxf:/config/theme-error.xsl"/>
+    <property as="xs:anyURI"  name="oxf.epilogue.theme.portlet"                      value="oxf:/config/theme-portlet-examples.xsl"/>
     <property as="xs:boolean" name="oxf.epilogue.output-xhtml"                       value="false"/>
     <property as="xs:boolean" name="oxf.epilogue.renderer-rewrite"                   value="true"/>
     <property as="xs:boolean" name="oxf.epilogue.process-svg"                        value="true"/>
-    <property as="xs:boolean" name="oxf.epilogue.xforms.widgets"                     value="true"/>
     <property as="xs:boolean" name="oxf.epilogue.embeddable"                         value="false"/>
 
     <!-- Processor-specific properties -->
