@@ -20,15 +20,14 @@ span.xforms-input input{
 	background-color:white;
 }
 span.xforms-required-empty input{
-	background-color:#6699FF;
+	background-color:red;
 }
 span.xforms-required-empty select{
-	background-color:#6699FF;
+	background-color:red;
 }
 span.xforms-required-empty textarea{
-	background-color:#6699FF;
+	background-color:red;
 }
-
 
 
 /*
