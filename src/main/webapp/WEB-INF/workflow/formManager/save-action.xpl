@@ -41,8 +41,8 @@
 
 		<!-- Prepare the SOAP body message -->
 		<p:processor name="oxf:xslt">
-			<p:input name="data" href="#instance" debug="instance"/>
-			<p:input name="widget" href="current()" debug="current"/>
+			<p:input name="data" href="#instance"/>
+			<p:input name="widget" href="current()"/>
 			<p:input name="config">
 				<delegation:execute service="tas" operation="addRequest" xsl:version="2.0">
 					<tas:authCredentials>
