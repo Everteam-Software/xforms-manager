@@ -36,7 +36,7 @@
 	<p:param name="data" type="output"/>
 
 	<!-- Start Upload -->
-	<p:for-each href="#instance" select="//*[string-length(normalize-space(@upload-id)) > 0  and string-length(normalize-space(text())) > 0]"
+	<p:for-each href="#instance" select="//*[string-length(normalize-space(@upload-id)) > 0  and string-length(normalize-space(text())) > 0 and starts-with(text(), 'file')]"
 		root="uploads" id="uploads-out">
 
 		<!-- Prepare the SOAP body message -->
@@ -149,7 +149,7 @@
 		<p:input name="config">
 			<xsl:stylesheet version="2.0">
 				<xsl:variable name="uploads" select="doc('input:uploads')"/>
-				<xsl:template match="//*[string-length(normalize-space(@upload-id)) > 0  and string-length(normalize-space(text())) > 0]">
+				<xsl:template match="//*[string-length(normalize-space(@upload-id)) > 0  and string-length(normalize-space(text())) > 0 and starts-with(text(), 'file')]">
 					<xsl:variable name="upload-id" select="@upload-id"/>
 					<xsl:copy-of select="$uploads//*[@upload-id = $upload-id]"/>
 				</xsl:template>
