@@ -73,12 +73,12 @@ ORBEON_LIBS = ["orbeon:activation-1_0_2:jar:dev-3.7.1.200905272119",
 "orbeon:msv-xsdlib-20070407:jar:dev-3.7.1.200905272119",
 
 # updated on 200909221231 to fix css bugs in Orbeon
-"orbeon:orbeon-form-builder:jar:dev-3.7.1.200909221231",
-"orbeon:orbeon-form-runner:jar:dev-3.7.1.200909221231",
-"orbeon:orbeon-resources-private:jar:dev-3.7.1.200909221231",
-"orbeon:orbeon-resources-public:jar:dev-3.7.1.200909221231",
-"orbeon:orbeon-xforms-filter:jar:dev-3.7.1.200909221231",
-"orbeon:orbeon:jar:dev-3.7.1.200909221231",
+"orbeon:orbeon-form-builder:jar:dev-3.7.1.201001140000",
+"orbeon:orbeon-form-runner:jar:dev-3.7.1.201001140000",
+"orbeon:orbeon-resources-private:jar:dev-3.7.1.201001140000",
+"orbeon:orbeon-resources-public:jar:dev-3.7.1.201001140000",
+"orbeon:orbeon-xforms-filter:jar:dev-3.7.1.201001140000",
+"orbeon:orbeon:jar:dev-3.7.1.201001140000",
 
 "orbeon:pdfbox-0_7_1:jar:dev-3.7.1.200905272119",
 "orbeon:saxon-8_8_orbeon_20080516:jar:dev-3.7.1.200905272119",
