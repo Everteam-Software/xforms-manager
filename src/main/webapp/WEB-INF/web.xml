@@ -150,16 +150,14 @@
     <filter-name>ops-xforms-filter</filter-name>
     <url-pattern>/xforms-jsp/*</url-pattern>
   </filter-mapping>
-  <!-- Set listeners -->
-  <!-- Uncomment this for the listeners -->
-  <!--
-    <listener>
-        <listener-class>org.orbeon.oxf.webapp.OPSServletContextListenerDelegate</listener-class>
-    </listener>
-    <listener>
-        <listener-class>org.orbeon.oxf.webapp.OPSSessionListenerDelegate</listener-class>
-    </listener>-->
-  <!-- End listeners -->
+  <!--Set context listener-->
+  <listener>
+      <listener-class>org.orbeon.oxf.webapp.OrbeonServletContextListenerDelegate</listener-class>
+  </listener>
+  <!--Set session listener-->
+  <listener>
+      <listener-class>org.orbeon.oxf.webapp.OrbeonSessionListenerDelegate</listener-class>
+  </listener>
   <!-- This is the main Orbeon Forms servlet -->
   <servlet>
     <servlet-name>ops-main-servlet</servlet-name>
