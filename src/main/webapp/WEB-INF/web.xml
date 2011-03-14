@@ -146,6 +146,21 @@
     </init-param>-->
     <!-- End separate WAR deployment -->
   </filter>
+  <!-- Uncomment the below filter for high security in which tasks can only be accessed after login WF-1462 Fix-->
+  	<!--
+	<filter>
+		<filter-name>IntalioSecurityFilter</filter-name>
+		<filter-class>
+			org.intalio.tempo.oxf.SecurityFilter
+		</filter-class>
+    </filter>
+	
+	<filter-mapping>
+        <filter-name>IntalioSecurityFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+	 </filter-mapping> 
+	 -->
+	<!-- End high security filter -->
   <filter-mapping>
     <filter-name>ops-xforms-filter</filter-name>
     <url-pattern>/xforms-jsp/*</url-pattern>
