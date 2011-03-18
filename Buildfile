@@ -94,13 +94,15 @@ ORBEON_LIBS = ["orbeon:activation-1_0_2:jar:3.8.0.201005141856-CE",
 "orbeon:xmlgraphics-commons-1_1:jar:3.8.0.201005141856-CE"
 ]
 
+SERVLET_API = [ "javax.servlet:servlet-api:jar:2.4" ]
+
 desc "XForms Manager"
 define "xforms-manager" do
   project.version = VERSION_NUMBER
   project.group = "org.intalio.tempo"
   compile.options.target = "1.5"
 
-  compile.with ORBEON_LIBS
+  compile.with [ORBEON_LIBS,SERVLET_API]
   resources.filter.using "version" => VERSION_NUMBER
   package :war
 end
