@@ -232,7 +232,8 @@
 		                <p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 		                    <xhtml:html>
 		                        <xhtml:body onLoad="parent.window.hideWindow();  Liferay.Popup.close(this);">
-		                            <xhtml:center>The process successfully started.</xhtml:center>
+		                            <xhtml:center>The process successfully started. Please click on one of the tabs to move forward</xhtml:center>
+									<xhtml:center><a href="..\">View TaskList</a></xhtml:center>
 		                        </xhtml:body>
 		                    </xhtml:html>
 		                </p:input>
