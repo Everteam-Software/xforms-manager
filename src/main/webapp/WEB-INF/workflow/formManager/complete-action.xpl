@@ -284,8 +284,8 @@
                     <p:processor name="oxf:identity">
 						<p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 							<xhtml:html>
-								<xhtml:body onLoad="parent.window.hideWindow(); Liferay.Popup.close(this); ">
-									<xhtml:center>Complete</xhtml:center>
+								<xhtml:body onLoad="parent.window.hideWindow(); Liferay.Popup.close(this);">
+									<xhtml:center>Task completed. Please click on one of the tabs to move forward</xhtml:center>
 								</xhtml:body>
 							</xhtml:html>
 						</p:input>
