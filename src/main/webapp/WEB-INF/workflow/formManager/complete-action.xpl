@@ -239,6 +239,17 @@
 				<p:output name="data" ref="data"/>
 			</p:processor>
 		</p:when>
+		<p:when test="string-length(normalize-space(//b4p:errorReason))">
+			<p:processor name="oxf:pipeline">
+				<p:input name="config" href="errorReason-handler.xpl"/>
+                <p:input name="data" href="#ws_call_output"/>
+                <p:input name="ws-request" href="#completeTaskInput"/>
+                <p:input name="header">
+                    <b><xsl:value-of select="doc('input:ws_call_output')//b4p:errorReason"/></b>
+                </p:input>
+                <p:output name="data" ref="data"/>
+			</p:processor>
+		</p:when>
         <p:otherwise>
             <p:choose href="#completeResponse">
                 <p:when test="string-length(normalize-space(//b4p:nextTaskId))">
@@ -269,7 +280,7 @@
 						<p:output name="data" ref="data"/>
 					</p:processor>
                 </p:when>
-                <p:otherwise>
+				<p:otherwise>
                     <p:processor name="oxf:identity">
 						<p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 							<xhtml:html>

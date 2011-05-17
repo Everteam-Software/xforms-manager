@@ -72,6 +72,15 @@
                 <p:output name="data" ref="data"/>
             </p:processor>
         </p:when>
+		<p:when test="string-length(normalize-space(//b4p:status))">
+			<p:processor name="oxf:pipeline">
+                <p:input name="config" href="errorReason-handler.xpl"/>
+                <p:input name="data" href="#claim-ws-output"/>
+                <p:input name="ws-request" href="#claimTaskInput"/>
+                <p:input name="header"><b><xsl:value-of select="doc('input:claim-ws-output')//b4p:status"/></b></p:input>
+                <p:output name="data" ref="data"/>
+            </p:processor>
+		</p:when>
         <p:otherwise>
 
             <p:processor name="oxf:xslt">
