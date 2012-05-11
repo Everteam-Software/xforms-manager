@@ -164,135 +164,161 @@
 		<p:output name="data" id="instance2"/>
 	</p:processor>
 	<!-- End Upload -->
-
-
-	<p:processor name="oxf:xslt">
-		<p:input name="data" href="#instance2"/>
-		<p:input name="config">
-			<xsl:stylesheet version="2.0">
-				<xsl:import href="oxf:/oxf/xslt/utils/copy.xsl"/>
-
-				<xsl:template match="/">
-					<xsl:copy>
-						<delegation:execute service="tmp" operation="completeTaskRequest" xsl:version="2.0">
-							<b4p:taskMetaData>
-								<b4p:taskId>
-									<xsl:value-of select="/*:output/@taskId"/>
-								</b4p:taskId>
-							</b4p:taskMetaData>
-							<b4p:participantToken>
-								<xsl:value-of select="/*:output/@participantToken"/>
-							</b4p:participantToken>
-							<b4p:user>
-								<xsl:value-of select="/*:output/@user"/>
-							</b4p:user>
-							<b4p:taskOutput>
-								<xsl:apply-templates select="*"/>
-							</b4p:taskOutput>
-						</delegation:execute>
-					</xsl:copy>
-				</xsl:template>
-
-				<xsl:template match="*:output">
-					<xsl:copy>
-						<xsl:apply-templates select="@*[name() != 'formUrl' and name() != 'taskType' and name() != 'saved'] | *"/>
-					</xsl:copy>
-				</xsl:template>
-
-			</xsl:stylesheet>
-		</p:input>
-		<p:output name="data" id="completeTaskInput"/>
-	</p:processor>
-
-	<p:processor name="oxf:delegation">
-		<p:input name="interface" href="oxf:/config/services.xml"/>
-		<p:input name="call" href="#completeTaskInput"/>
-		<p:output name="data" id="completeResponse"/>
-	</p:processor>
 	
-	<p:processor name="oxf:exception-catcher">
-        <p:input name="data" href="#completeResponse"/>
-        <p:output name="data" id="ws_call_output"/>
+	<p:processor name="oxf:pipeline">
+		<p:input name="config" href="getTaskState.xpl"/>
+		<p:input name="data" href="#instance2"/>
+		<p:output name="data" ref="data" id="getTaskOwnerAndStateOutput"/>
     </p:processor>
 
-    <p:choose href="#ws_call_output">
-        <p:when test="/exceptions">
-            <p:processor name="oxf:pipeline">
-                <p:input name="config" href="exception-handler.xpl"/>
-                <p:input name="data" href="#ws_call_output"/>
-                <p:input name="ws-request" href="#completeTaskInput"/>
-                <p:input name="header">
-                    <b>Complete Task Failed</b>
-                </p:input>
-                <p:output name="data" ref="data"/>
-            </p:processor>
-        </p:when>
-		<p:when test="string-length(normalize-space(//faultstring))">
+	<p:choose href="#getTaskOwnerAndStateOutput">
+		<p:when test="//tms:taskState='COMPLETED'">
 			<p:processor name="oxf:identity">
 				<p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 					<xhtml:html>
-						<xhtml:body onLoad="parent.window.hideWindow();  Liferay.Popup.close(this); ">
-							<xhtml:center>Failed</xhtml:center>
+						<xhtml:body onLoad="parent.window.hideWindow();" text="red">
+							<xhtml:center>The Task has been completed already you cannot complete the task. Please click on one of the tabs to move forward.</xhtml:center>
 						</xhtml:body>
 					</xhtml:html>
 				</p:input>
 				<p:output name="data" ref="data"/>
 			</p:processor>
 		</p:when>
-		<p:when test="string-length(normalize-space(//b4p:errorReason))">
-			<p:processor name="oxf:pipeline">
-				<p:input name="config" href="errorReason-handler.xpl"/>
-                <p:input name="data" href="#ws_call_output"/>
-                <p:input name="ws-request" href="#completeTaskInput"/>
-                <p:input name="header">
-                    <b><xsl:value-of select="doc('input:ws_call_output')//b4p:errorReason"/></b>
-                </p:input>
-                <p:output name="data" ref="data"/>
+	
+		<p:otherwise>	
+			<p:processor name="oxf:xslt">
+				<p:input name="data" href="#instance2"/>
+				<p:input name="config">
+					<xsl:stylesheet version="2.0">
+						<xsl:import href="oxf:/oxf/xslt/utils/copy.xsl"/>
+
+						<xsl:template match="/">
+							<xsl:copy>
+								<delegation:execute service="tmp" operation="completeTaskRequest" xsl:version="2.0">
+									<b4p:taskMetaData>
+										<b4p:taskId>
+											<xsl:value-of select="/*:output/@taskId"/>
+										</b4p:taskId>
+									</b4p:taskMetaData>
+									<b4p:participantToken>
+										<xsl:value-of select="/*:output/@participantToken"/>
+									</b4p:participantToken>
+									<b4p:user>
+										<xsl:value-of select="/*:output/@user"/>
+									</b4p:user>
+									<b4p:taskOutput>
+										<xsl:apply-templates select="*"/>
+									</b4p:taskOutput>
+								</delegation:execute>
+							</xsl:copy>
+						</xsl:template>
+
+						<xsl:template match="*:output">
+							<xsl:copy>
+								<xsl:apply-templates select="@*[name() != 'formUrl' and name() != 'taskType' and name() != 'saved'] | *"/>
+							</xsl:copy>
+						</xsl:template>
+
+					</xsl:stylesheet>
+				</p:input>
+				<p:output name="data" id="completeTaskInput"/>
 			</p:processor>
-		</p:when>
-        <p:otherwise>
-            <p:choose href="#completeResponse">
-                <p:when test="string-length(normalize-space(//b4p:nextTaskId))">
-                    <p:processor name="oxf:xslt">
-                        <p:input name="data" href="#instance2"/>
-                        <p:input name="completeResponse" href="#completeResponse"/>
-                        <p:input name="config">
-                            <task xsl:version="2.0">
-                                <id>
-                                    <xsl:value-of select="doc('input:completeResponse')//b4p:nextTaskId"/>
-                                </id>
-                                <url>
-                                    <xsl:value-of select="doc('input:completeResponse')//b4p:nextTaskURL"/>
-                                </url>
-                                <token>
-                                    <xsl:value-of select="/*:output/@participantToken"/>
-                                </token>
-                                <user>
-                                    <xsl:value-of select="/*:output/@user"/>
-                                </user>
-                            </task>
-                        </p:input>
-                        <p:output name="data" id="nextShownTask"/>
-                    </p:processor>
+
+			<p:processor name="oxf:delegation">
+				<p:input name="interface" href="oxf:/config/services.xml"/>
+				<p:input name="call" href="#completeTaskInput"/>
+				<p:output name="data" id="completeResponse"/>
+			</p:processor>
+			
+			<p:choose href="#completeResponse">
+				<p:when test="//b4p:status ='ERROR'">
 					<p:processor name="oxf:pipeline">
-						<p:input name="config" href="act.xpl"/>
-						<p:input name="data" href="#nextShownTask"/>
+						<p:input name="config" href="errorReason-handler.xpl"/>
+						<p:input name="data" href="#completeResponse"/>
+						<p:input name="ws-request" href="#completeTaskInput"/>
+						<p:input name="header"><b><xsl:value-of select="doc('input:completeResponse')//b4p:status"/></b></p:input>
 						<p:output name="data" ref="data"/>
 					</p:processor>
-                </p:when>
+				</p:when>
+				
 				<p:otherwise>
-                    <p:processor name="oxf:identity">
-						<p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-							<xhtml:html>
-								<xhtml:body onLoad="parent.window.hideWindow(); Liferay.Popup.close(this);">
-									<xhtml:center>Task completed. Please click on one of the tabs to move forward</xhtml:center>
-								</xhtml:body>
-							</xhtml:html>
-						</p:input>
-						<p:output name="data" ref="data"/>
+	
+					<p:processor name="oxf:exception-catcher">
+						<p:input name="data" href="#completeResponse"/>
+						<p:output name="data" id="ws_call_output"/>
 					</p:processor>
-                </p:otherwise>
-            </p:choose>
-        </p:otherwise>
-    </p:choose>
+
+					<p:choose href="#ws_call_output">
+						<p:when test="/exceptions">
+							<p:processor name="oxf:pipeline">
+								<p:input name="config" href="exception-handler.xpl"/>
+								<p:input name="data" href="#ws_call_output"/>
+								<p:input name="ws-request" href="#completeTaskInput"/>
+								<p:input name="header">
+									<b>Complete Task Failed</b>
+								</p:input>
+								<p:output name="data" ref="data"/>
+							</p:processor>
+						</p:when>
+						<p:when test="string-length(normalize-space(//faultstring))">
+							<p:processor name="oxf:identity">
+								<p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+									<xhtml:html>
+										<xhtml:body onLoad="parent.window.hideWindow();  Liferay.Popup.close(this); ">
+											<xhtml:center>Failed</xhtml:center>
+										</xhtml:body>
+									</xhtml:html>
+								</p:input>
+								<p:output name="data" ref="data"/>
+							</p:processor>
+						</p:when>
+						<p:otherwise>
+							<p:choose href="#completeResponse">
+								<p:when test="string-length(normalize-space(//b4p:nextTaskId))">
+									<p:processor name="oxf:xslt">
+										<p:input name="data" href="#instance2"/>
+										<p:input name="completeResponse" href="#completeResponse"/>
+										<p:input name="config">
+											<task xsl:version="2.0">
+												<id>
+													<xsl:value-of select="doc('input:completeResponse')//b4p:nextTaskId"/>
+												</id>
+												<url>
+													<xsl:value-of select="doc('input:completeResponse')//b4p:nextTaskURL"/>
+												</url>
+												<token>
+													<xsl:value-of select="/*:output/@participantToken"/>
+												</token>	
+												<user>
+													<xsl:value-of select="/*:output/@user"/>
+												</user>
+											</task>
+										</p:input>
+										<p:output name="data" id="nextShownTask"/>
+									</p:processor>
+									<p:processor name="oxf:pipeline">
+										<p:input name="config" href="act.xpl"/>
+										<p:input name="data" href="#nextShownTask"/>
+										<p:output name="data" ref="data"/>
+									</p:processor>
+								</p:when>
+								<p:otherwise>
+									<p:processor name="oxf:identity">
+										<p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+											<xhtml:html>
+												<xhtml:body onLoad="parent.window.hideWindow(); Liferay.Popup.close(this); ">
+													<xhtml:center>Task completed. Please click on one of the tabs to move forward.</xhtml:center>
+												</xhtml:body>
+											</xhtml:html>
+										</p:input>
+										<p:output name="data" ref="data"/>
+									</p:processor>
+								</p:otherwise>
+							</p:choose>
+						</p:otherwise>
+					</p:choose>
+				</p:otherwise>
+			</p:choose>
+		</p:otherwise>
+	</p:choose>
 </p:config>

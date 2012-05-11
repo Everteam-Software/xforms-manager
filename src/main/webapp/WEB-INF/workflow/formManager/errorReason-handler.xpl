@@ -38,18 +38,20 @@
 				<xsl:output method="html" name="ws-request-output"/>
 				<xsl:template match="/">
 					<xhtml:html>
-						<xhtml:body>
+						<xhtml:body text="red">
 							<xhtml:center>
 								<xhtml:h1><xsl:copy-of select="doc('input:header')/*"/></xhtml:h1>
 							</xhtml:center>
-							<xhtml:div>
+							<!--<xhtml:div>
 								<xhtml:b>Delegation in XPL to Web-Service:</xhtml:b>
 								<xhtml:br/>
 								<xsl:copy-of select="saxon:serialize(doc('input:ws-request'), 'ws-request-output')"/>
-							</xhtml:div>
-							<xhtml:p>
-								<xsl:apply-templates select="*"/>
-							</xhtml:p>
+							</xhtml:div>-->
+							<xhtml:center>
+								<xhtml:p>
+									<xsl:apply-templates select="*"/>
+								</xhtml:p>
+							</xhtml:center>
 						</xhtml:body>
 					</xhtml:html>
 				</xsl:template>

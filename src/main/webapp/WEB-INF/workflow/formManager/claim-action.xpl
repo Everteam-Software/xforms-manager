@@ -25,6 +25,7 @@
           xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
           xmlns:delegation="http://orbeon.org/oxf/xml/delegation"
           xmlns:b4p="http://www.intalio.com/bpms/workflow/ib4p_20051115"
+		  xmlns:tms="http://www.intalio.com/BPMS/Workflow/TaskManagementServices-20051109/"
           xmlns:ev="http://www.w3.org/2001/xml-events">
 
 
@@ -32,87 +33,109 @@
     <p:param name="instance" type="input"/>
     <!-- name must be data because it's called by the page-flow  -->
     <p:param name="data" type="output"/>
-
-    <p:processor name="oxf:xslt">
-        <p:input name="data" href="#instance"/>
-        <p:input name="config">
-            <delegation:execute service="tmp" operation="claimTaskRequest" xsl:version="2.0">
-                <b4p:taskId>
-                    <xsl:value-of select="/*:output/@taskId"/>
-                </b4p:taskId>
-                <b4p:claimerUser>
-                    <xsl:value-of select="/*:output/@user"/>
-                </b4p:claimerUser>
-                <b4p:participantToken>
-                    <xsl:value-of select="/*:output/@participantToken"/>
-                </b4p:participantToken>
-            </delegation:execute>
-        </p:input>
-        <p:output name="data" id="claimTaskInput"/>
+	
+	<p:processor name="oxf:pipeline">
+		<p:input name="config" href="getTaskState.xpl"/>
+		<p:input name="data" href="#instance"/>
+		<p:output name="data" ref="data" id="getTaskOwnerAndStateOutput"/>
     </p:processor>
-
-    <p:processor name="oxf:delegation">
-        <p:input name="interface" href="oxf:/config/services.xml"/>
-        <p:input name="call" href="#claimTaskInput"/>
-        <p:output name="data" id="claimTaskOutput"/>
-    </p:processor>
-
-    <p:processor name="oxf:exception-catcher">
-        <p:input name="data" href="#claimTaskOutput"/>
-        <p:output name="data" id="claim-ws-output"/>
-    </p:processor>
-
-    <p:choose href="#claimTaskOutput">
-        <p:when test="/exceptions">
-            <p:processor name="oxf:pipeline">
-                <p:input name="config" href="exception-handler.xpl"/>
-                <p:input name="data" href="#claim-ws-output"/>
-                <p:input name="delegation" href="#claimTaskInput"/>
-                <p:input name="header"><b>Complete Task</b></p:input>
-                <p:output name="data" ref="data"/>
-            </p:processor>
-        </p:when>
-		<p:when test="string-length(normalize-space(//b4p:status))">
-			<p:processor name="oxf:pipeline">
-                <p:input name="config" href="errorReason-handler.xpl"/>
-                <p:input name="data" href="#claim-ws-output"/>
-                <p:input name="ws-request" href="#claimTaskInput"/>
-                <p:input name="header"><b><xsl:value-of select="doc('input:claim-ws-output')//b4p:status"/></b></p:input>
-                <p:output name="data" ref="data"/>
-            </p:processor>
+	
+	<p:choose href="#getTaskOwnerAndStateOutput">
+		<p:when test="//tms:taskState='COMPLETED'">
+			<p:processor name="oxf:identity">
+				<p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+					<xhtml:html>
+						<xhtml:body onLoad="parent.window.hideWindow();" text="red">
+							<xhtml:center>The Task has been completed already you cannot complete the task. Please click on one of the tabs to move forward.</xhtml:center>
+						</xhtml:body>
+					</xhtml:html>
+				</p:input>
+				<p:output name="data" ref="data"/>
+			</p:processor>
 		</p:when>
-        <p:otherwise>
+		
+		<p:otherwise>
+			<p:processor name="oxf:xslt">
+				<p:input name="data" href="#instance"/>
+				<p:input name="config">
+					<delegation:execute service="tmp" operation="claimTaskRequest" xsl:version="2.0">
+						<b4p:taskId>
+							<xsl:value-of select="/*:output/@taskId"/>
+						</b4p:taskId>
+						<b4p:claimerUser>
+							<xsl:value-of select="/*:output/@user"/>
+						</b4p:claimerUser>
+						<b4p:participantToken>
+							<xsl:value-of select="/*:output/@participantToken"/>
+						</b4p:participantToken>
+					</delegation:execute>
+				</p:input>
+				<p:output name="data" id="claimTaskInput"/>
+			</p:processor>
 
-            <p:processor name="oxf:xslt">
-                <p:input name="data" href="#instance"/>
-                <p:input name="config">
-                    <task xsl:version="2.0">
-                        <id>
-                            <xsl:value-of select="/*:output/@taskId"/>
-                        </id>
-                        <url>
-                            <xsl:value-of select="/*:output/@formUrl"/>
-                        </url>
-                        <type/>
-                        <token>
-                            <xsl:value-of select="/*:output/@participantToken"/>
-                        </token>
-                        <user>
-                            <xsl:value-of select="/*:output/@user"/>
-                        </user>
-                        <reloadTaskList/>
-                    </task>
-                </p:input>
-                <p:output name="data" id="claimedTask"/>
-            </p:processor>
+			<p:processor name="oxf:delegation">
+				<p:input name="interface" href="oxf:/config/services.xml"/>
+				<p:input name="call" href="#claimTaskInput"/>
+				<p:output name="data" id="claimTaskOutput"/>
+			</p:processor>
 
-            <p:processor name="oxf:pipeline">
-                <p:input name="config" href="act.xpl"/>
-                <p:input name="data" href="#claimedTask"/>
-                <p:output name="data" ref="data"/>
-            </p:processor>
+			<p:processor name="oxf:exception-catcher">
+				<p:input name="data" href="#claimTaskOutput"/>
+				<p:output name="data" id="claim-ws-output"/>
+			</p:processor>
 
-        </p:otherwise>
-    </p:choose>
+			<p:choose href="#claimTaskOutput">
+				<p:when test="/exceptions">
+					<p:processor name="oxf:pipeline">
+						<p:input name="config" href="exception-handler.xpl"/>
+						<p:input name="data" href="#claim-ws-output"/>
+						<p:input name="delegation" href="#claimTaskInput"/>
+						<p:input name="header"><b>Complete Task</b></p:input>
+						<p:output name="data" ref="data"/>
+					</p:processor>
+				</p:when>
+				<p:when test="string-length(normalize-space(//b4p:status))">
+					<p:processor name="oxf:pipeline">
+						<p:input name="config" href="errorReason-handler.xpl"/>
+						<p:input name="data" href="#claim-ws-output"/>
+						<p:input name="ws-request" href="#claimTaskInput"/>
+						<p:input name="header"><b><xsl:value-of select="doc('input:claim-ws-output')//b4p:status"/></b></p:input>
+						<p:output name="data" ref="data"/>
+					</p:processor>
+				</p:when>
+				<p:otherwise>
 
+					<p:processor name="oxf:xslt">
+						<p:input name="data" href="#instance"/>
+						<p:input name="config">
+							<task xsl:version="2.0">
+								<id>
+									<xsl:value-of select="/*:output/@taskId"/>
+								</id>
+								<url>
+									<xsl:value-of select="/*:output/@formUrl"/>
+								</url>
+								<type/>
+								<token>
+									<xsl:value-of select="/*:output/@participantToken"/>
+								</token>
+								<user>
+									<xsl:value-of select="/*:output/@user"/>
+								</user>
+								<reloadTaskList/>
+							</task>
+						</p:input>
+						<p:output name="data" id="claimedTask"/>
+					</p:processor>
+
+					<p:processor name="oxf:pipeline">
+						<p:input name="config" href="act.xpl"/>
+						<p:input name="data" href="#claimedTask"/>
+						<p:output name="data" ref="data"/>
+					</p:processor>
+
+				</p:otherwise>
+			</p:choose>
+		</p:otherwise>
+	</p:choose>
 </p:config>
