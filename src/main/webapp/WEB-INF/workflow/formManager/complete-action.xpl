@@ -306,7 +306,7 @@
 									<p:processor name="oxf:identity">
 										<p:input name="data" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 											<xhtml:html>
-												<xhtml:body onLoad="window.close();parent.window.open('../ui-fw/tasks.htm','_self');">
+												<xhtml:body onLoad="window.close();">
 													<xhtml:center>Task completed.</xhtml:center>
 												</xhtml:body>
 											</xhtml:html>
