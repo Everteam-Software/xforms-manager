@@ -2,7 +2,7 @@ require "buildr"
 require "install.rb"
 
 # Keep this structure to allow the build system to update version numbers.
-VERSION_NUMBER = "6.0.0.55"
+VERSION_NUMBER = "6.0.0.56-SNAPSHOT"
 
 desc "XForms Manager"
 define "xforms-manager" do
